@@ -84,7 +84,7 @@ def update_options(title):
                 for title in search_results]
 
 
-def fetch_data(movieID: str) -> pd.DataDrame:
+def fetch_data(movieID: str) -> pd.DataFrame:
     """ Returns a dataframe with columns relevant for the app """
     ia = IMDb()
     result = ia.get_movie(movieID)
