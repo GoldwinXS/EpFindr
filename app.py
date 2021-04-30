@@ -112,6 +112,7 @@ def update_graph(movieID):
 
 # best way to style body tag
 app.index_string = app.index_string.replace("<body>", f"<body style=\"background-color:{background_color}\";>")
+server = app.server
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
