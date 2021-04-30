@@ -75,12 +75,33 @@ app.layout = html.Center([
 @app.callback(Output('selection-dropdown', 'options'),
               Input('title-input', 'value'))
 def update_options(title):
+    """ Returns valid options for the dropdown menu from IMDb's search """
     if title is None:
         return []
     else:
         search_results = IMDb().search_movie(title)
-        return [{'label': title.data['title'], 'value': title.movieID} for title in
-                search_results]
+        return [{'label': title.data['title'], 'value': title.movieID}
+                for title in search_results]
+
+
+def fetch_data(movieID: str) -> pd.DataDrame:
+    """ Returns a dataframe with columns relevant for the app """
+    ia = IMDb()
+    result = ia.get_movie(movieID)
+    ia.update(result, 'episodes')
+    columns = ['season', 'episode', 'name', 'rating', ]
+    data = {var: [] for var in columns}
+
+    if 'episodes' not in result.keys():
+        return 'Are you sure this is a show?'
+
+    for k, v in result['episodes'].items():
+        data['season'] += [eps['season'] for eps in v.values()]
+        data['episode'] += [eps['episode'] for eps in v.values()]
+        data['name'] += [eps['title'] for eps in v.values()]
+        # some shows are there but are not yet rated
+        data['rating'] += [eps['rating'] if 'rating' in eps.keys() else None for eps in v.values()]
+    return pd.DataFrame(data)
 
 
 @app.callback(
@@ -90,24 +111,13 @@ def update_graph(movieID):
     if not movieID:
         raise PreventUpdate
     else:
-        ia = IMDb()
-        result = ia.get_movie(movieID)
-        ia.update(result, 'episodes')
-        columns = ['season', 'episode', 'name', 'rating', ]
-        data = {var: [] for var in columns}
-
-        if 'episodes' not in result.keys():
-            return 'Are you sure this is a show?'
-
-        for k, v in result['episodes'].items():
-            data['season'] += [eps['season'] for eps in v.values()]
-            data['episode'] += [eps['episode'] for eps in v.values()]
-            data['name'] += [eps['title'] for eps in v.values()]
-            data['rating'] += [eps['rating'] if 'rating' in eps.keys() else None for eps in v.values()]
-        df = pd.DataFrame(data)
-
-        return dcc.Graph(figure=px.line(df, x=df.index, y='rating', color='season',
-                                        hover_data=['name', 'season', 'episode', 'rating'], template='custom_dark'))
+        df = fetch_data(movieID)
+        return dcc.Graph(figure=px.line(df,
+                                        x=df.index,
+                                        y='rating',
+                                        color='season',
+                                        hover_data=['name', 'season', 'episode', 'rating'],
+                                        template='custom_dark'))
 
 
 # best way to style body tag
