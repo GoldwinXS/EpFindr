@@ -1,5 +1,5 @@
 # EpFindr (a small dashboard interface to imdb)
-This app is a visualizes the ratings of diffrent episodes for any show, using IMDbPY. 
+This app is a visualizes the ratings of diffrent episodes for any show, using IMDbPY. See it in action! https://epfindr.herokuapp.com
 
 # Why?
 Say you're stuck in a lockdown and you're feeling nostalgic for an old show buut, you don't want to rewatch the whole thing.
